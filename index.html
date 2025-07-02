@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Discord Timezone Map</title>
+  <meta charset="utf-8" />
+  <style>
+    html, body { height: 100%; margin: 0; }
+    #map { width: 100%; height: 100%; }
+    .tooltip {
+      background-color: white;
+      padding: 4px;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+  </style>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+</head>
+<body>
+  <div id="map"></div>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    // Your image dimensions (adjust to match your PNG resolution)
+    const bounds = [[0, 0], [1000, 2000]]; // placeholder dimensions
+    const map = L.map('map', {
+      crs: L.CRS.Simple,
+      minZoom: -5,
+    });
+    const image = L.imageOverlay('48df1c7a-6835-426d-a6fb-e89033004c84.png', bounds).addTo(map);
+    map.fitBounds(bounds);
+
+    // Your form data (manually mapped for now)
+    const users = [
+      {
+        "name": "Chocy",
+        "offset": "+1:00",
+        "lat": -13.35,
+        "lon": -13.26
+      }
+    ];
+
+    // Convert latitude/longitude to pixel coordinates on your image
+    // You need to scale this correctly — for now, use a projection or custom mapping
+    function latLonToImageCoords(lat, lon) {
+      // Example using equirectangular assumptions over the image
+      const imageWidth = 2000;
+      const imageHeight = 1000;
+      const x = ((lon + 180) / 360) * imageWidth;
+      const y = ((90 - lat) / 180) * imageHeight;
+      return [y, x];
+    }
+
+    users.forEach(user => {
+      const [y, x] = latLonToImageCoords(user.lat, user.lon);
+      const marker = L.circleMarker([y, x], {
+        color: 'red',
+        radius: 5,
+        fillOpacity: 0.9
+      }).addTo(map);
+      marker.bindTooltip(`<b>${user.name}</b><br>UTC${user.offset}`, {
+        permanent: false,
+        direction: 'top',
+        className: 'tooltip'
+      });
+    });
+  </script>
+</body>
+</html>
